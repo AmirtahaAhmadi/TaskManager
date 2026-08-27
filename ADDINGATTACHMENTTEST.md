@@ -1,5 +1,5 @@
 ## TEST Log
-POST /tasks/addAttachmentToTask/1 --> 201 created, updatedTask
+POST /tasks/addAttachmentToTask/1 with "attachment" name --> 201 created, updatedTask
 - also we can see the file with /files/1787831478724.png
 
 ## Failing case (with purpose)

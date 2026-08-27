@@ -27,7 +27,9 @@ this endpoint on success returns status 201 and on failure returns status 404 fo
 
 # Folders Plan
 - main.js --> this is the main file of project
-- routs/tasks --> index.js --> this file is for endpoints using express.Router()
+- routs/tasks --> index.js --> this file is for endpoints using express.Router(), also using fs for working with json file
 - package.json --> I installed express, nodemon, multer packages and "dev" can run the app with nodemon and start can run the app with node
 - utils --> attachment.util.js --> multer settings
-- uploads --> uploaded files 
+- uploads --> uploaded files
+- data.json --> tasks
+- TaskController.js --> controller
