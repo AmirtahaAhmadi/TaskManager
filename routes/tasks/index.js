@@ -13,14 +13,13 @@ let tasks = [
 ];
 
 tasksRouter.get("/getTasks", (req, res) => {
-  let tasks = tasks;
   res.status(200).json(tasks);
 });
 
 tasksRouter.post("/createTask", (req, res) => {
   const newTaskTitle = req.body.title;
   if (!newTaskTitle) {
-    res.status(400).json({ message: "please enter the title of task!" });
+    res.status(400).json({ message: "Please enter the title of task!" });
   } else {
     const newTask = {
       id: crypto.randomInt(1000, 99999),
