@@ -25,3 +25,4 @@ this endpoint on success returns status 200 and on failure returns status 404 fo
 # Folders Plan
 - main.js --> this is the main file of project
 - routs/tasks --> index.js --> this file is for endpoints using express.Router()
+- package.json --> I installed express, nodemon, multer packages and "dev" can run the app with nodemon and start can run the app with node
