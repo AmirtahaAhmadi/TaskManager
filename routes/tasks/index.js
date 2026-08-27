@@ -1,6 +1,7 @@
 const express = require("express");
 const tasksRouter = express.Router();
 const crypto = require("crypto");
+const { uploader } = require("../../utils/attachments.util");
 
 let tasks = [
   {
@@ -19,7 +20,7 @@ tasksRouter.get("/getTasks", (req, res) => {
 tasksRouter.post("/createTask", (req, res) => {
   const newTaskTitle = req.body.title;
   if (!newTaskTitle) {
-    res.status(400).json({ message: "Please enter the title of task!" });
+    res.status(400).json({ message: "please enter the title of task!" });
   } else {
     const newTask = {
       id: crypto.randomInt(1000, 99999),
@@ -40,7 +41,7 @@ tasksRouter.put("/updateTask/:id", (req, res) => {
   const newTitle = req.body.title;
   const selectedTask = tasks.find((el) => el.id == id);
   if (!newTitle) {
-    res.status(400).json({ message: "please enter the new title of task!" });
+    res.status(400).json({ message: "Please enter the new title of task!" });
   } else {
     if (!selectedTask) {
       res.status(404).json({ message: "There is no task with this id!" });
@@ -100,5 +101,32 @@ tasksRouter.get("/getTaskDetail/:id", (req, res) => {
     res.status(200).json(selectedTask);
   }
 });
+
+tasksRouter.post(
+  "/addAttachmentToTask/:id",
+  uploader.single("attachment"),
+  (req, res) => {
+    const id = req.params.id;
+    const file = req.file;
+    const selectedTask = tasks.find((el) => el.id == id);
+    if (!selectedTask) {
+      res.status(404).json({ message: "There is no task with this id!" });
+    } else {
+      tasks = tasks.filter((el) => el.id != id);
+      const updatedTask = {
+        id: parseInt(id),
+        title: selectedTask.title,
+        completed: selectedTask.completed,
+        createdAt: selectedTask.createdAt,
+        attachmentsPath: [
+          ...selectedTask.attachmentsPath,
+          `files/${file.filename}`,
+        ],
+      };
+      tasks.push(updatedTask);
+      res.status(201).json(updatedTask);
+    }
+  },
+);
 
 module.exports = { tasksRouter };

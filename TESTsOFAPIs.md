@@ -6,6 +6,7 @@
 5. PATCH /taasks/toggleTask/70768 for check completed --> with valid id --> 200 OK, checkedTask
 6. PATCH /taasks/toggleTask/70768 for uncheck completed --> with valid id --> 200 OK, checkedTask
 7. GET /tasks/getTaskDetail/70768 --> with valid id --> 200 OK, selectedTask
+8. POST /tasks/addAttachmentToTask/1
 
 ## Failing case (with purpose)
 1. POST /tasks/createTask with no "title" field
