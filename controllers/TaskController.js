@@ -1,63 +1,55 @@
-const crypto = require("crypto");
+const uuid = require("uuid");
+const validator = require("express-validator");
+const { customError } = require("../utils/HandlingErrors");
 const fs = require("fs");
 
 const readingData = () => {
-  const tasks = JSON.parse(fs.readFileSync("data.json", "utf-8"));
+  const tasks = JSON.parse(fs.readFileSync("tasks.json", "utf-8"));
   return tasks;
 };
 
 const changingTasks = (newData) => {
-  fs.writeFileSync("data.json", JSON.stringify(newData));
+  fs.writeFileSync("tasks.json", JSON.stringify(newData));
 };
 
 const getTasks = (req, res) => {
   let tasks = readingData();
-  const completed = req.query.completed;
-  const search = req.query.search;
-  const page = req.query.page;
-  const limit = req.query.limit;
-  if (completed) {
-    if (completed !== "true" && completed !== "false") {
-      return res
-        .status(400)
-        .json({ message: "Completed query must be boolean!" });
-    } else {
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 422);
+  } else {
+    const completed = req.query.completed;
+    const search = req.query.search;
+    const page = req.query.page;
+    const limit = req.query.limit;
+    if (completed) {
       tasks = tasks.filter((el) => String(el.completed) == completed);
     }
-  }
-  if (search) {
-    tasks = tasks.filter((el) => el.title.includes(search));
-  }
-  if (limit) {
-    if (isNaN(Number(limit))) {
-      return res.status(400).json({ message: "Limit query must be number!" });
-    } else {
+    if (search) {
+      tasks = tasks.filter((el) => el.title.includes(search));
+    }
+    if (limit) {
       if (page) {
-        if (isNaN(Number(page))) {
-          return res
-            .status(400)
-            .json({ message: "Page query must be number!" });
-        } else {
-          const skip = (page - 1) * limit;
-          const lastIndex = page * limit;
-          tasks = tasks.slice(skip, lastIndex);
-        }
+        const skip = (page - 1) * limit;
+        const lastIndex = page * limit;
+        tasks = tasks.slice(skip, lastIndex);
       } else {
         tasks = tasks.slice(0, limit);
       }
     }
+    res.status(200).json(tasks);
   }
-  res.status(200).json(tasks);
 };
 
 const createTask = (req, res) => {
   let tasks = readingData();
   const newTaskTitle = req.body.title;
-  if (!newTaskTitle) {
-    return res.status(400).json({ message: "Please enter the title of task!" });
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 400);
   } else {
     const newTask = {
-      id: crypto.randomInt(1000, 99999),
+      id: uuid.v4(),
       title: newTaskTitle,
       completed: false,
       createdAt: new Date(),
@@ -76,17 +68,18 @@ const updateTask = (req, res) => {
   const id = req.params.id;
   const newTitle = req.body.title;
   const selectedTask = tasks.find((el) => el.id == id);
-  if (!newTitle) {
-    return res
-      .status(400)
-      .json({ message: "please enter the new title of task!" });
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 400);
   } else {
     if (!selectedTask) {
-      res.status(404).json({ message: "There is no task with this id!" });
+      return res
+        .status(404)
+        .json({ message: "There is no task with this id!" });
     } else {
       tasks = tasks.filter((el) => el.id != id);
       const updatedTask = {
-        id: parseInt(id),
+        id: id,
         title: newTitle,
         completed: selectedTask.completed,
         createdAt: selectedTask.createdAt,
@@ -103,7 +96,10 @@ const deleteTask = (req, res) => {
   let tasks = readingData();
   const id = req.params.id;
   const selectedTask = tasks.find((el) => el.id == id);
-  if (!selectedTask) {
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 400);
+  } else if (!selectedTask) {
     return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     tasks = tasks.filter((el) => el.id != id);
@@ -118,12 +114,15 @@ const toggleTask = (req, res) => {
   let tasks = readingData();
   const id = req.params.id;
   const selectedTask = tasks.find((el) => el.id == id);
-  if (!selectedTask) {
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 400);
+  } else if (!selectedTask) {
     return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     tasks = tasks.filter((el) => el.id != id);
     const checkedTask = {
-      id: parseInt(id),
+      id: id,
       title: selectedTask.title,
       completed: !selectedTask.completed,
       createdAt: selectedTask.createdAt,
@@ -139,7 +138,10 @@ const getTaskDetail = (req, res) => {
   let tasks = readingData();
   const id = req.params.id;
   const selectedTask = tasks.find((el) => el.id == id);
-  if (!selectedTask) {
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 400);
+  } else if (!selectedTask) {
     return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     return res.status(200).json(selectedTask);
@@ -151,14 +153,17 @@ const addAttachmentToTask = (req, res) => {
   const id = req.params.id;
   const file = req.file;
   const selectedTask = tasks.find((el) => el.id == id);
-  if (!file) {
+  const err = validator.validationResult(req);
+  if (!err.isEmpty()) {
+    return customError(err.array()[0].msg, 400);
+  } else if (!file) {
     return res.status(400).json({ message: "Please select a file!" });
   } else if (!selectedTask) {
     return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     tasks = tasks.filter((el) => el.id != id);
     const updatedTask = {
-      id: parseInt(id),
+      id: id,
       title: selectedTask.title,
       completed: selectedTask.completed,
       createdAt: selectedTask.createdAt,
