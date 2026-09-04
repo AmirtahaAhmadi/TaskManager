@@ -54,7 +54,7 @@ const createTask = (req, res) => {
   let tasks = readingData();
   const newTaskTitle = req.body.title;
   if (!newTaskTitle) {
-    res.status(400).json({ message: "Please enter the title of task!" });
+    return res.status(400).json({ message: "Please enter the title of task!" });
   } else {
     const newTask = {
       id: crypto.randomInt(1000, 99999),
@@ -65,7 +65,7 @@ const createTask = (req, res) => {
     };
     tasks.push(newTask);
     changingTasks(tasks);
-    res
+    return res
       .status(201)
       .json({ message: "Task created successfully!", addedData: newTask });
   }
@@ -77,7 +77,9 @@ const updateTask = (req, res) => {
   const newTitle = req.body.title;
   const selectedTask = tasks.find((el) => el.id == id);
   if (!newTitle) {
-    res.status(400).json({ message: "please enter the new title of task!" });
+    return res
+      .status(400)
+      .json({ message: "please enter the new title of task!" });
   } else {
     if (!selectedTask) {
       res.status(404).json({ message: "There is no task with this id!" });
@@ -92,7 +94,7 @@ const updateTask = (req, res) => {
       };
       tasks.push(updatedTask);
       changingTasks(tasks);
-      res.status(200).json(updatedTask);
+      return res.status(200).json(updatedTask);
     }
   }
 };
@@ -102,11 +104,11 @@ const deleteTask = (req, res) => {
   const id = req.params.id;
   const selectedTask = tasks.find((el) => el.id == id);
   if (!selectedTask) {
-    res.status(404).json({ message: "There is no task with this id!" });
+    return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     tasks = tasks.filter((el) => el.id != id);
     changingTasks(tasks);
-    res
+    return res
       .status(200)
       .json({ message: "Task deleted successfully!", data: tasks });
   }
@@ -117,7 +119,7 @@ const toggleTask = (req, res) => {
   const id = req.params.id;
   const selectedTask = tasks.find((el) => el.id == id);
   if (!selectedTask) {
-    res.status(404).json({ message: "There is no task with this id!" });
+    return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     tasks = tasks.filter((el) => el.id != id);
     const checkedTask = {
@@ -129,7 +131,7 @@ const toggleTask = (req, res) => {
     };
     tasks.push(checkedTask);
     changingTasks(tasks);
-    res.status(200).json(checkedTask);
+    return res.status(200).json(checkedTask);
   }
 };
 
@@ -138,9 +140,9 @@ const getTaskDetail = (req, res) => {
   const id = req.params.id;
   const selectedTask = tasks.find((el) => el.id == id);
   if (!selectedTask) {
-    res.status(404).json({ message: "There is no task with this id!" });
+    return res.status(404).json({ message: "There is no task with this id!" });
   } else {
-    res.status(200).json(selectedTask);
+    return res.status(200).json(selectedTask);
   }
 };
 
@@ -149,8 +151,10 @@ const addAttachmentToTask = (req, res) => {
   const id = req.params.id;
   const file = req.file;
   const selectedTask = tasks.find((el) => el.id == id);
-  if (!selectedTask) {
-    res.status(404).json({ message: "There is no task with this id!" });
+  if (!file) {
+    return res.status(400).json({ message: "Please select a file!" });
+  } else if (!selectedTask) {
+    return res.status(404).json({ message: "There is no task with this id!" });
   } else {
     tasks = tasks.filter((el) => el.id != id);
     const updatedTask = {
@@ -165,7 +169,7 @@ const addAttachmentToTask = (req, res) => {
     };
     tasks.push(updatedTask);
     changingTasks(tasks);
-    res.status(201).json(updatedTask);
+    return res.status(201).json(updatedTask);
   }
 };
 

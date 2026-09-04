@@ -8,4 +8,4 @@ app.use("/files", express.static("uploads"));
 app.use(express.json());
 app.use("/tasks", tasksRouter);
 
-app.listen(PORT, () => console.log("App Successfully runned!"));
+app.listen(PORT, () => console.log("App Successfully ran!"));

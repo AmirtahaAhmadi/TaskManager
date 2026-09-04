@@ -1,22 +1,22 @@
 const express = require("express");
 const tasksRouter = express.Router();
 const { uploader } = require("../../utils/attachments.util");
-const taskController = require("../../TaskController");
+const taskController = require("../../controllers/TaskController");
 
-tasksRouter.get("/getTasks", taskController.getTasks);
+tasksRouter.get("/", taskController.getTasks);
 
-tasksRouter.post("/createTask", taskController.createTask);
+tasksRouter.post("/", taskController.createTask);
 
-tasksRouter.put("/updateTask/:id", taskController.updateTask);
+tasksRouter.put("/:id", taskController.updateTask);
 
-tasksRouter.delete("/deleteTask/:id", taskController.deleteTask);
+tasksRouter.delete("/:id", taskController.deleteTask);
 
-tasksRouter.patch("/toggleTask/:id", taskController.toggleTask);
+tasksRouter.patch("/:id", taskController.toggleTask);
 
-tasksRouter.get("/getTaskDetail/:id", taskController.getTaskDetail);
+tasksRouter.get("/:id", taskController.getTaskDetail);
 
 tasksRouter.post(
-  "/addAttachmentToTask/:id",
+  "/:id/attachments",
   uploader.single("attachment"),
   taskController.addAttachmentToTask,
 );
